@@ -1,9 +1,11 @@
 package com.organization.employee_service.service.impl;
 
 import com.organization.employee_service.entity.Employee;
+import com.organization.employee_service.exception.EmployeeNotFoundException;
 import com.organization.employee_service.repository.EmployeeRepository;
 import com.organization.employee_service.service.EmployeeService;
 import org.springframework.stereotype.Service;
+import com.organization.employee_service.exception.EmployeeNotFoundException;
 
 import java.util.List;
 
@@ -27,8 +29,9 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public Employee getEmployeeById(Long id) {
-        return employeeRepository.findById(id).orElse(null);
+    public Employee getEmployeeById(Long id) {  
+        return employeeRepository.findById(id)
+            .orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
     @Override
