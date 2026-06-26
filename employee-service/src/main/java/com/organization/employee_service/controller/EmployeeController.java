@@ -1,7 +1,13 @@
 package com.organization.employee_service.controller;
 
+import com.organization.employee_service.dto.EmployeeRequestDTO;
+import com.organization.employee_service.dto.EmployeeResponseDTO;
 import com.organization.employee_service.entity.Employee;
+import com.organization.employee_service.mapper.EmployeeMapper;
 import com.organization.employee_service.service.EmployeeService;
+import com.organization.employee_service.dto.EmployeeRequestDTO;
+import com.organization.employee_service.dto.EmployeeResponseDTO;
+import com.organization.employee_service.mapper.EmployeeMapper;
 
 import jakarta.validation.Valid;
 
@@ -20,18 +26,30 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public Employee saveEmployee(@Valid @RequestBody Employee employee) {
-        return employeeService.saveEmployee(employee);
+    public EmployeeResponseDTO saveEmployee(
+        @Valid @RequestBody EmployeeRequestDTO request) {
+
+    Employee employee = EmployeeMapper.toEntity(request);
+
+    Employee savedEmployee = employeeService.saveEmployee(employee);
+
+    return EmployeeMapper.toResponseDTO(savedEmployee);
     }
 
     @GetMapping
-    public List<Employee> getAllEmployees() {
-        return employeeService.getAllEmployees();
+    public List<EmployeeResponseDTO> getAllEmployees() {
+
+        List<Employee> employees = employeeService.getAllEmployees();
+
+        return EmployeeMapper.toResponseDTOList(employees);
     }
 
     @GetMapping("/{id}")
-    public Employee getEmployeeById(@PathVariable Long id) {
-        return employeeService.getEmployeeById(id);
+    public EmployeeResponseDTO getEmployeeById(@PathVariable Long id) {
+
+        Employee employee = employeeService.getEmployeeById(id);
+
+        return EmployeeMapper.toResponseDTO(employee);
     }
 
     @PutMapping("/{id}")
