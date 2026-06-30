@@ -40,5 +40,32 @@ pipeline {
                                  fingerprint: true
             }
         }
+
+        stage('Build Docker Image') {
+        steps {
+            dir('employee-service') {
+                sh 'docker build -t employee-service:1.0 .'
+            }
+        }
+    }
+
+    stage('Remove Old Container') {
+        steps {
+            sh 'docker rm -f employee-service || true'
+        }
+    }
+
+    stage('Run Docker Container') {
+        steps {
+            sh '''
+            docker run -d \
+            --name employee-service \
+            --network employee-network \
+            -p 8082:8080 \
+            employee-service:1.0 \
+            --spring.profiles.active=docker
+            '''
+        }
+    }
     }
 }
