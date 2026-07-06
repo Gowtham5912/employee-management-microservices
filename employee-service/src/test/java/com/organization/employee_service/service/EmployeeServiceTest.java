@@ -8,6 +8,7 @@ import com.organization.employee_service.exception.EmployeeNotFoundException;
 import com.organization.employee_service.repository.EmployeeRepository;
 import com.organization.employee_service.service.impl.EmployeeServiceImpl;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -15,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Optional;
@@ -33,6 +35,15 @@ public class EmployeeServiceTest {
 
     @InjectMocks
     private EmployeeServiceImpl employeeService;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(
+                employeeService,
+                "departmentServiceUrl",
+                "http://localhost:8083/departments"
+        );
+    }
 
     @Test
     void shouldSaveEmployee() {
