@@ -1,17 +1,19 @@
 package com.organization.employee_service.service;
 
-import com.organization.employee_service.entity.Employee;
+import com.organization.employee_service.dto.EmployeeRequestDTO;
+import com.organization.employee_service.dto.EmployeeResponseDTO;
+
 import java.util.List;
 
 public interface EmployeeService {
 
-    Employee saveEmployee(Employee employee);
+    EmployeeResponseDTO saveEmployee(EmployeeRequestDTO dto);
 
-    List<Employee> getAllEmployees();
+    List<EmployeeResponseDTO> getAllEmployees();
 
-    Employee getEmployeeById(Long id);
+    EmployeeResponseDTO getEmployeeById(Long id);
 
-    Employee updateEmployee(Long id, Employee employee);
+    EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto);
 
     void deleteEmployee(Long id);
 }

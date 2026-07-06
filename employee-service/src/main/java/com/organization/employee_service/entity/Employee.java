@@ -25,15 +25,18 @@ public class Employee {
     @Min(value = 0, message = "Salary cannot be negative")
     private Double salary;
 
+    private Long departmentId;
+
     public Employee() {
     }
 
-    public Employee(Long id, String firstName, String lastName, String email, Double salary) {
+    public Employee(Long id, String firstName, String lastName, String email, Double salary, Long departmentId) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.salary = salary;
+        this.departmentId = departmentId;
     }
 
     public Long getId() {
@@ -74,5 +77,13 @@ public class Employee {
 
     public void setSalary(Double salary) {
         this.salary = salary;
+    }
+
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
     }
 }

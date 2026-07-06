@@ -1,27 +1,26 @@
 package com.organization.employee_service.service;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.organization.employee_service.dto.DepartmentDTO;
+import com.organization.employee_service.dto.EmployeeRequestDTO;
+import com.organization.employee_service.dto.EmployeeResponseDTO;
 import com.organization.employee_service.entity.Employee;
 import com.organization.employee_service.exception.EmployeeNotFoundException;
 import com.organization.employee_service.repository.EmployeeRepository;
 import com.organization.employee_service.service.impl.EmployeeServiceImpl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
+
+import org.springframework.web.client.RestTemplate;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class EmployeeServiceTest {
@@ -29,125 +28,164 @@ public class EmployeeServiceTest {
     @Mock
     private EmployeeRepository employeeRepository;
 
+    @Mock
+    private RestTemplate restTemplate;
+
     @InjectMocks
     private EmployeeServiceImpl employeeService;
-    
+
     @Test
     void shouldSaveEmployee() {
 
-        Employee employee = new Employee();
-        employee.setFirstName("Gowtham");
-        employee.setLastName("DV");
-        employee.setEmail("gowtham@example.com");
-        employee.setSalary(50000.0);
+        EmployeeRequestDTO request = new EmployeeRequestDTO();
+        request.setFirstName("Gowtham");
+        request.setLastName("DV");
+        request.setEmail("gowtham@example.com");
+        request.setSalary(50000.0);
+        request.setDepartmentId(1L);
 
-        when(employeeRepository.save(employee))
-                .thenReturn(employee);
+        Employee savedEmployee = new Employee();
+        savedEmployee.setId(1L);
+        savedEmployee.setFirstName("Gowtham");
+        savedEmployee.setLastName("DV");
+        savedEmployee.setEmail("gowtham@example.com");
+        savedEmployee.setSalary(50000.0);
+        savedEmployee.setDepartmentId(1L);
 
-        Employee savedEmployee = employeeService.saveEmployee(employee);
+        DepartmentDTO departmentDTO = new DepartmentDTO();
+        departmentDTO.setId(1L);
+        departmentDTO.setDepartmentName("Engineering");
+        departmentDTO.setDepartmentCode("ENG001");
+        departmentDTO.setDepartmentDescription("Handles software development");
 
-        assertEquals("Gowtham", savedEmployee.getFirstName());
+        when(employeeRepository.save(any(Employee.class))).thenReturn(savedEmployee);
+        when(restTemplate.getForObject(
+                "http://localhost:8083/departments/1",
+                DepartmentDTO.class))
+                .thenReturn(departmentDTO);
 
-        verify(employeeRepository).save(employee);
+        EmployeeResponseDTO response = employeeService.saveEmployee(request);
+
+        assertNotNull(response);
+        assertEquals("Gowtham", response.getFirstName());
+        assertEquals(1L, response.getDepartmentId());
+        assertNotNull(response.getDepartment());
+        assertEquals("Engineering", response.getDepartment().getDepartmentName());
+
+        verify(employeeRepository).save(any(Employee.class));
+        verify(restTemplate).getForObject("http://localhost:8083/departments/1", DepartmentDTO.class);
     }
 
     @Test
     void shouldReturnEmployeeById() {
 
-        // Arrange
         Employee employee = new Employee();
         employee.setId(1L);
         employee.setFirstName("Gowtham");
         employee.setLastName("DV");
         employee.setEmail("gowtham@example.com");
         employee.setSalary(50000.0);
+        employee.setDepartmentId(1L);
 
-        when(employeeRepository.findById(1L))
-                .thenReturn(Optional.of(employee));
+        DepartmentDTO departmentDTO = new DepartmentDTO();
+        departmentDTO.setId(1L);
+        departmentDTO.setDepartmentName("Engineering");
+        departmentDTO.setDepartmentCode("ENG001");
+        departmentDTO.setDepartmentDescription("Handles software development");
 
-        // Act
-        Employee result = employeeService.getEmployeeById(1L);
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
+        when(restTemplate.getForObject(
+                "http://localhost:8083/departments/1",
+                DepartmentDTO.class))
+                .thenReturn(departmentDTO);
 
-        // Assert
+        EmployeeResponseDTO result = employeeService.getEmployeeById(1L);
+
         assertNotNull(result);
         assertEquals(1L, result.getId());
         assertEquals("Gowtham", result.getFirstName());
+        assertEquals(1L, result.getDepartmentId());
+        assertNotNull(result.getDepartment());
+        assertEquals("Engineering", result.getDepartment().getDepartmentName());
 
         verify(employeeRepository).findById(1L);
+        verify(restTemplate).getForObject("http://localhost:8083/departments/1", DepartmentDTO.class);
     }
 
     @Test
     void shouldThrowExceptionWhenEmployeeNotFound() {
 
-        // Arrange
-        when(employeeRepository.findById(1L))
-                .thenReturn(Optional.empty());
+        when(employeeRepository.findById(1L)).thenReturn(Optional.empty());
 
-        // Act & Assert
         EmployeeNotFoundException exception =
                 assertThrows(EmployeeNotFoundException.class,
                         () -> employeeService.getEmployeeById(1L));
 
-        assertEquals("Employee not found with id: 1",
-                exception.getMessage());
+        assertEquals("Employee not found with id: 1", exception.getMessage());
 
         verify(employeeRepository).findById(1L);
+        verifyNoInteractions(restTemplate);
     }
 
     @Test
     void shouldUpdateEmployee() {
 
-        // Arrange
         Employee existingEmployee = new Employee();
         existingEmployee.setId(1L);
         existingEmployee.setFirstName("Gowtham");
         existingEmployee.setLastName("DV");
         existingEmployee.setEmail("gowtham@example.com");
         existingEmployee.setSalary(50000.0);
+        existingEmployee.setDepartmentId(1L);
 
-        Employee updatedEmployee = new Employee();
-        updatedEmployee.setFirstName("Gowtham");
-        updatedEmployee.setLastName("D V");
-        updatedEmployee.setEmail("gowtham.dvgowda@example.com");
-        updatedEmployee.setSalary(80000.0);
+        EmployeeRequestDTO request = new EmployeeRequestDTO();
+        request.setFirstName("Gowtham");
+        request.setLastName("D V");
+        request.setEmail("gowtham.dvgowda@example.com");
+        request.setSalary(80000.0);
+        request.setDepartmentId(2L);
 
-        when(employeeRepository.findById(1L))
-                .thenReturn(Optional.of(existingEmployee));
+        DepartmentDTO departmentDTO = new DepartmentDTO();
+        departmentDTO.setId(2L);
+        departmentDTO.setDepartmentName("HR");
+        departmentDTO.setDepartmentCode("HR001");
+        departmentDTO.setDepartmentDescription("Handles human resources");
 
-        when(employeeRepository.save(existingEmployee))
-                .thenReturn(existingEmployee);
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(existingEmployee));
+        when(employeeRepository.save(existingEmployee)).thenReturn(existingEmployee);
+        when(restTemplate.getForObject(
+                "http://localhost:8083/departments/2",
+                DepartmentDTO.class))
+                .thenReturn(departmentDTO);
 
-        // Act
-        Employee result = employeeService.updateEmployee(1L, updatedEmployee);
+        EmployeeResponseDTO result = employeeService.updateEmployee(1L, request);
 
-        // Assert
         assertEquals("D V", result.getLastName());
         assertEquals("gowtham.dvgowda@example.com", result.getEmail());
         assertEquals(80000.0, result.getSalary());
+        assertEquals(2L, result.getDepartmentId());
+        assertNotNull(result.getDepartment());
+        assertEquals("HR", result.getDepartment().getDepartmentName());
 
         verify(employeeRepository).findById(1L);
         verify(employeeRepository).save(existingEmployee);
+        verify(restTemplate).getForObject("http://localhost:8083/departments/2", DepartmentDTO.class);
     }
 
     @Test
     void shouldDeleteEmployee() {
 
-        // Arrange
         Employee employee = new Employee();
         employee.setId(1L);
         employee.setFirstName("Gowtham");
 
-        when(employeeRepository.findById(1L))
-                .thenReturn(Optional.of(employee));
-
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
         doNothing().when(employeeRepository).delete(employee);
 
-        // Act
         employeeService.deleteEmployee(1L);
 
-        // Assert
         verify(employeeRepository).findById(1L);
         verify(employeeRepository).delete(employee);
+        verifyNoInteractions(restTemplate);
     }
-
 }

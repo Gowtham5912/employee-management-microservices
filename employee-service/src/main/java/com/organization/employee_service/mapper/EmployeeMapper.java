@@ -1,8 +1,8 @@
 package com.organization.employee_service.mapper;
 
 import java.util.ArrayList;
-import java.util.ArrayList;
 import java.util.List;
+
 import com.organization.employee_service.dto.EmployeeRequestDTO;
 import com.organization.employee_service.dto.EmployeeResponseDTO;
 import com.organization.employee_service.entity.Employee;
@@ -17,6 +17,7 @@ public class EmployeeMapper {
         employee.setLastName(dto.getLastName());
         employee.setEmail(dto.getEmail());
         employee.setSalary(dto.getSalary());
+        employee.setDepartmentId(dto.getDepartmentId());
 
         return employee;
     }
@@ -28,9 +29,12 @@ public class EmployeeMapper {
                 employee.getFirstName(),
                 employee.getLastName(),
                 employee.getEmail(),
-                employee.getSalary()
+                employee.getSalary(),
+                employee.getDepartmentId(),
+                null
         );
     }
+
     public static List<EmployeeResponseDTO> toResponseDTOList(List<Employee> employees) {
 
         List<EmployeeResponseDTO> response = new ArrayList<>();
@@ -38,6 +42,7 @@ public class EmployeeMapper {
         for (Employee employee : employees) {
             response.add(toResponseDTO(employee));
         }
+
         return response;
-}
+    }
 }

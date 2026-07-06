@@ -7,6 +7,8 @@ public class EmployeeResponseDTO {
     private String lastName;
     private String email;
     private Double salary;
+    private Long departmentId;
+    private DepartmentDTO department;
 
     public EmployeeResponseDTO() {
     }
@@ -15,13 +17,17 @@ public class EmployeeResponseDTO {
                                String firstName,
                                String lastName,
                                String email,
-                               Double salary) {
+                               Double salary,
+                               Long departmentId,
+                               DepartmentDTO department) {
 
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.salary = salary;
+        this.departmentId = departmentId;
+        this.department = department;
     }
 
     public Long getId() {
@@ -62,5 +68,21 @@ public class EmployeeResponseDTO {
 
     public void setSalary(Double salary) {
         this.salary = salary;
+    }
+
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    public DepartmentDTO getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(DepartmentDTO department) {
+        this.department = department;
     }
 }

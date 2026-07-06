@@ -3,6 +3,7 @@ package com.organization.employee_service.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class EmployeeRequestDTO {
 
@@ -18,6 +19,9 @@ public class EmployeeRequestDTO {
 
     @Min(value = 0, message = "Salary cannot be negative")
     private Double salary;
+
+    @NotNull(message = "Department Id is required")
+    private Long departmentId;
 
     public EmployeeRequestDTO() {
     }
@@ -52,5 +56,13 @@ public class EmployeeRequestDTO {
 
     public void setSalary(Double salary) {
         this.salary = salary;
+    }
+
+    public Long getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(Long departmentId) {
+        this.departmentId = departmentId;
     }
 }
