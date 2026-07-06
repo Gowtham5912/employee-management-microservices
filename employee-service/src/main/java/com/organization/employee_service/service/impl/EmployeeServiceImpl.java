@@ -19,6 +19,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
@@ -27,6 +29,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final RestTemplate restTemplate;
+
+    @Value("${department.service.url}")
+    private String departmentServiceUrl;
 
     public EmployeeServiceImpl(EmployeeRepository employeeRepository,
                                RestTemplate restTemplate) {
@@ -142,7 +147,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     private DepartmentDTO getDepartmentById(Long departmentId) {
-        String url = "http://localhost:8083/departments/" + departmentId;
+        String url = departmentServiceUrl + "/" + departmentId;
 
         try {
             return restTemplate.getForObject(url, DepartmentDTO.class);
