@@ -34,7 +34,7 @@ services:
       department-service:
         condition: service_started
     ports:
-      - "8080:8080"
+      - "8082:8080"
 
 volumes:
   mysql-data:
