@@ -3,7 +3,6 @@ services:
   mysql:
     build:
       context: ./mysql
-    container_name: mysql
     environment:
       MYSQL_ROOT_PASSWORD: Sonu@123
       MYSQL_DATABASE: employee_db
@@ -20,7 +19,6 @@ services:
   department-service:
     build:
       context: ./department-service
-    container_name: department-service
     depends_on:
       mysql:
         condition: service_healthy
@@ -30,7 +28,6 @@ services:
   employee-service:
     build:
       context: ./employee-service
-    container_name: employee-service
     depends_on:
       mysql:
         condition: service_healthy
