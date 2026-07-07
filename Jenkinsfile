@@ -10,7 +10,7 @@ pipeline {
             }
         }
 
-        stage('Compile') {
+        stage('Compile Employee Service') {
             steps {
                 dir('employee-service') {
                     sh './mvnw clean compile'
@@ -18,7 +18,7 @@ pipeline {
             }
         }
 
-        stage('Unit Test') {
+        stage('Unit Test Employee Service') {
             steps {
                 dir('employee-service') {
                     sh './mvnw test'
@@ -26,7 +26,7 @@ pipeline {
             }
         }
 
-        stage('Package') {
+        stage('Package Employee Service') {
             steps {
                 dir('employee-service') {
                     sh './mvnw package -DskipTests'
@@ -34,38 +34,47 @@ pipeline {
             }
         }
 
-        stage('Archive Artifact') {
+        stage('Compile Department Service') {
             steps {
-                archiveArtifacts artifacts: 'employee-service/target/*.jar',
+                dir('department-service') {
+                    sh './mvnw clean compile'
+                }
+            }
+        }
+
+        stage('Unit Test Department Service') {
+            steps {
+                dir('department-service') {
+                    sh './mvnw test'
+                }
+            }
+        }
+
+        stage('Package Department Service') {
+            steps {
+                dir('department-service') {
+                    sh './mvnw package -DskipTests'
+                }
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'employee-service/target/*.jar, department-service/target/*.jar',
                                  fingerprint: true
             }
         }
 
-        stage('Build Docker Image') {
-        steps {
-            dir('employee-service') {
-                sh 'docker build -t employee-service:1.0 .'
+        stage('Stop Old Containers') {
+            steps {
+                sh 'docker compose down || true'
             }
         }
-    }
 
-    stage('Remove Old Container') {
-        steps {
-            sh 'docker rm -f employee-service || true'
+        stage('Build and Run Microservices') {
+            steps {
+                sh 'docker compose up -d --build'
+            }
         }
-    }
-
-    stage('Run Docker Container') {
-        steps {
-            sh '''
-            docker run -d \
-            --name employee-service \
-            --network employee-network \
-            -p 8082:8080 \
-            employee-service:1.0 \
-            --spring.profiles.active=docker
-            '''
-        }
-    }
     }
 }
